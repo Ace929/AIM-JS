@@ -13,7 +13,7 @@ namespace EmailMonitorDemo
 {
     class Program
     {
-        // 1. Define a folder path for storing attachments
+        // Folder path for storing attachments
         private static readonly string AttachmentsFolder = @"C:\Users\seali\OneDrive\Documents\GitHub\AIM-JS\EmailMonitorDemo\ProcessedFiles";
 
         static async Task Main(string[] args)
@@ -27,13 +27,13 @@ namespace EmailMonitorDemo
             string smtpHost = "smtp.gmail.com";
             int smtpPort = 465; // SMTP over SSL
 
-            // Replace with your actual Gmail address & App Password (if 2FA is enabled)
+            // Gmail info, set with the App Password
             string userName = "ifpicswerefunny@gmail.com";
             string password = "jfwf ihvr kjjm zlev";
 
             bool useSSL = true;
 
-            // Polling / checking interval in minutes
+            // Checking interval in minutes
             int checkIntervalMinutes = 1;
 
             // Subject we’re looking for in unread emails
@@ -71,15 +71,15 @@ namespace EmailMonitorDemo
         {
             using (var imapClient = new ImapClient())
             {
-                // 2. Connect to Gmail IMAP
+                // Connect to Gmail IMAP
                 await imapClient.ConnectAsync(imapHost, imapPort, useSSL);
                 await imapClient.AuthenticateAsync(userName, password);
 
-                // 3. Access the INBOX folder
+                // Access the INBOX folder
                 var inbox = imapClient.Inbox;
                 await inbox.OpenAsync(FolderAccess.ReadWrite);
 
-                // 4. Search for UNSEEN (unread) messages
+                // Search for UNSEEN (unread) messages
                 var uids = await inbox.SearchAsync(SearchQuery.NotSeen);
 
                 foreach (var uid in uids)
@@ -93,11 +93,11 @@ namespace EmailMonitorDemo
                     {
                         Console.WriteLine($"[FOUND] Unread email with subject: {message.Subject}");
 
-                        // 5. Process attachments (download Excel & do operations)
+                        // Process attachments (download Excel & do operations)
                         //    Return the processed file path (if any)
                         string processedFilePath = await HandleAttachmentsAsync(message);
 
-                        // 6. Send a reply if we have a from-address
+                        // Send a reply if we have a from-address
                         var fromAddress = message.From.Mailboxes.FirstOrDefault()?.Address;
                         if (!string.IsNullOrEmpty(fromAddress))
                         {
@@ -111,7 +111,7 @@ namespace EmailMonitorDemo
                             );
                         }
 
-                        // 7. Mark the email as SEEN so we don't process it again
+                        // Mark the email as SEEN so we don't process it again
                         await inbox.AddFlagsAsync(uid, MessageFlags.Seen, true);
                         Console.WriteLine("Marked message as seen.\n");
                     }
