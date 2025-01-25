@@ -253,7 +253,7 @@ namespace DoomsdayAlgorithm
             int doomsday = 2; // Because 2000 is Tuesday (Only initial doomsday [For the century])
             int y = 4;
             int z = (int)Math.Floor((double)year / y);
-            int w = (int)(year + z) % 7;
+            int w = (year + z) % 7;
             doomsday = w + 2;
             doomsday = doomsday % 7;
 
