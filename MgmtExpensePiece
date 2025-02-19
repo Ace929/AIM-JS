@@ -1,0 +1,76 @@
+public class MyEntity
+{
+    public string EntityName { get; set; }
+    public string AccountName { get; set; }
+    public decimal DecimalValue { get; set; }
+    public string StringValue { get; set; }
+}
+
+public class MyResult
+{
+    public string EntityName { get; set; }
+
+    // Info for Account A
+    public decimal SumA { get; set; }
+    public string FirstStringA { get; set; }
+
+    // Info for Account B
+    public decimal SumB { get; set; }
+    public string FirstStringB { get; set; }
+}
+
+// Imagine this data comes from your database:
+List<MyEntity> data = new List<MyEntity>
+{
+    new MyEntity { EntityName = "Entity1", AccountName = "AccountA", DecimalValue = 10, StringValue = "A1" },
+    new MyEntity { EntityName = "Entity1", AccountName = "AccountA", DecimalValue = 5, StringValue = "A2" },
+    new MyEntity { EntityName = "Entity1", AccountName = "AccountB", DecimalValue = 20, StringValue = "B1" },
+
+    new MyEntity { EntityName = "Entity2", AccountName = "AccountA", DecimalValue = 100, StringValue = "A3" },
+    new MyEntity { EntityName = "Entity2", AccountName = "AccountB", DecimalValue = 200, StringValue = "B2" },
+    new MyEntity { EntityName = "Entity2", AccountName = "AccountB", DecimalValue = 50, StringValue = "B3" },
+};
+
+// The two account names you care about:
+string accountA = "AccountA";
+string accountB = "AccountB";
+
+// 1) Group by EntityName
+// 2) For each group, pick out the rows for AccountA and AccountB
+// 3) Sum decimals for those rows, and pick the first string value
+// 4) Return a single result object per entity
+List<MyResult> results = data
+    .GroupBy(entity => entity.EntityName)
+    .Select(group =>
+    {
+        // All rows for this EntityName
+        var entityName = group.Key;
+
+        // Rows for Account A in this entity
+        var accountAGroup = group.Where(x => x.AccountName == accountA);
+        decimal sumA = accountAGroup.Sum(x => x.DecimalValue);
+        string firstStringA = accountAGroup.Select(x => x.StringValue).FirstOrDefault();
+
+        // Rows for Account B in this entity
+        var accountBGroup = group.Where(x => x.AccountName == accountB);
+        decimal sumB = accountBGroup.Sum(x => x.DecimalValue);
+        string firstStringB = accountBGroup.Select(x => x.StringValue).FirstOrDefault();
+
+        // Construct the output object
+        return new MyResult
+        {
+            EntityName = entityName,
+            SumA = sumA,
+            FirstStringA = firstStringA,
+            SumB = sumB,
+            FirstStringB = firstStringB
+        };
+    })
+    .ToList();
+
+// Now you have one object per EntityName in results.
+foreach (var r in results)
+{
+    Console.WriteLine($"EntityName: {r.EntityName}, SumA: {r.SumA}, FirstStringA: {r.FirstStringA}, " +
+                      $"SumB: {r.SumB}, FirstStringB: {r.FirstStringB}");
+}
